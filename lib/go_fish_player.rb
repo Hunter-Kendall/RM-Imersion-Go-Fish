@@ -3,28 +3,20 @@
 require_relative 'card_deck'
 
 # Player for the WarGame class
-class WarPlayer
+class GoFishPlayer
   attr_accessor :hand
   attr_reader :name
 
-  def initialize(name)
+  def initialize(name, hand = [])
     @name = name
-    @hand = []
-  end
-
-  def draw(deck)
-    hand << deck.deal
+    @hand = hand
   end
 
   def hand_size
     hand.length
   end
 
-  def flip_card
-    hand.pop
-  end
-
-  def takes_cards(played_cards)
-    played_cards.each { |card| hand.unshift(card) }
+  def draw(deck)
+    hand << deck.deal
   end
 end
