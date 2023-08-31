@@ -1,4 +1,4 @@
-# frozen_string_literal: true
+# frozen_string_literal: false
 
 require_relative 'go_fish_player'
 
@@ -35,5 +35,17 @@ class GoFishGame
 
   def player_count
     @players.length
+  end
+
+  def show_players
+    players_string = ''
+    players.each do |player|
+      players_string << " #{player.name}"
+    end
+    players_string
+  end
+
+  def play_turn(player = players.pop)
+    puts show_players
   end
 end

@@ -39,4 +39,9 @@ describe GoFishGame do
       expect { game2.start }.to raise_error(GoFishGame::NotEnoughPlayers)
     end
   end
+  context '#play_turn' do
+    it 'shows all the other players to take from' do
+      expect(game_3player.play_turn).to receive(:puts).with(" #{player1.name} #{player2.name}")
+    end
+  end
 end
