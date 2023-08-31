@@ -20,4 +20,8 @@ class PlayingCard
   def rank_rating
     RANKS.find_index(rank)
   end
+
+  def to_s
+    "#{rank}'#{suit}"
+  end
 end

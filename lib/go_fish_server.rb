@@ -22,7 +22,7 @@ class GoFishSocketServer
   def accept_new_client(_player_name = 'Random Player')
     client = @server.accept_nonblock
     pending_clients.push(client)
-    client.puts(pending_clients.count.odd? ? 'Welcome. Waiting for another player to join.' : 'Welcome. You are about to go fishing.')
+    client.puts(pending_clients.count % 3 ? 'Welcome. Waiting for another player to join.' : 'Welcome. You are about to go fishing.')
     # associate player and client
   rescue IO::WaitReadable, Errno::EINTR
     puts 'No client to accept'
@@ -31,7 +31,7 @@ class GoFishSocketServer
   def create_game_if_possible
     return unless pending_clients.count > 2
 
-    game = GoFishGame.new([])
+    game = GoFishGame.new
     games.push(game)
     games_to_humans[game] = pending_clients.shift(2)
     game.start

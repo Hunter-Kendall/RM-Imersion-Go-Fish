@@ -5,6 +5,8 @@ require_relative 'go_fish_player'
 # The class the runs the go fish game.
 class GoFishGame
   class NotEnoughPlayers < StandardError; end
+  CARDS7 = 7
+  CARDS5 = 5
 
   attr_accessor :deck, :players
 
@@ -18,9 +20,9 @@ class GoFishGame
 
     deck.shuffle_cards
     if player_count <= 3
-      deal(7)
+      deal(CARDS7)
     else
-      deal(5)
+      deal(CARDS5)
     end
   end
 

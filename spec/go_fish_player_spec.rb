@@ -14,7 +14,8 @@ describe GoFishPlayer do
      PlayingCard.new('A', 'D'),
      PlayingCard.new('3', 'D')]
   end
-  let(:player) { GoFishPlayer.new(name, hand) }
+  let(:books) { %w[A K J] }
+  let(:player) { GoFishPlayer.new(name, hand, books) }
   let(:player_empty_hand) { GoFishPlayer.new(name) }
 
   context '#hand_size' do
@@ -26,6 +27,11 @@ describe GoFishPlayer do
     it 'takes one card from deck' do
       player_empty_hand.draw(deck)
       expect(player_empty_hand.hand_size).to eq(1)
+    end
+  end
+  context '#number_of_books' do
+    it 'returns the number of books a player has' do
+      expect(player.number_of_books).to eq books.length
     end
   end
 end
