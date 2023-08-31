@@ -46,7 +46,9 @@ describe GoFishGame do
   end
   context '#play_turn' do
     it 'shows all the other players to take from' do
-      expect(game_3player.play_turn).to receive(:puts).with(" #{player1.name} #{player2.name}")
+      message = " #{player1.name} #{player2.name}"
+      expect(game_3player).to receive(:puts).with(message)
+      game_3player.play_turn
     end
   end
 end
