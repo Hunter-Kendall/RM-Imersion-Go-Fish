@@ -34,7 +34,7 @@ class GoFishGame
   end
 
   def player_count
-    @players.length
+    players.length
   end
 
   def show_players
