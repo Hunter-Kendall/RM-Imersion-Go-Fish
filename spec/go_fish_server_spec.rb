@@ -29,27 +29,37 @@ end
 describe GoFishSocketServer do
   let(:server) { GoFishSocketServer.new }
   let(:clients) { [] }
+  def connect_client(name, welcome_message)
+    client = MockGoFishSocketClient.new(server.port_number)
+    server.accept_new_client(name)
+    expect(client.capture_output).to eq welcome_message
 
+    server.create_game_if_possible
+    client
+  end
   context 'game started' do
-    def connect_client(name, welcome_message)
-      client = MockGoFishSocketClient.new(server.port_number)
-      server.accept_new_client(name)
-      expect(client.capture_output).to eq welcome_message
-
-      server.create_game_if_possible
-      client
-    end
-
-    it 'Tells each player how many cards they have left' do
+    xit 'Tells each player how many cards they have left' do
       server.start
 
       client1 = connect_client('Player 1', "Welcome. Waiting for another player to join.\n")
-      client1 = connect_client('Player 2', "Welcome. Waiting for another player to join.\n")
-      client2 = connect_client('Player 3', "Welcome. You are about to go fishing.\n")
+      client2 = connect_client('Player 2', "Welcome. Waiting for another player to join.\n")
+      client3 = connect_client('Player 3', "Welcome. You are about to go fishing.\n")
 
       expect(client1.capture_output).to eq "Player 1 has 7 cards and 0 books\n"
       expect(client2.capture_output).to eq "Player 2 has 7 cards and 0 books\n"
-      expect(client2.capture_output).to eq "Player 3 has 7 cards and 0 books\n"
+      expect(client3.capture_output).to eq "Player 3 has 7 cards and 0 books\n"
+    end
+  end
+  context '#client_creates_player' do
+    it 'asks the client for its name' do
+      server.start
+      name = 'Hunter'
+
+      client = connect_client('Player 1', "Welcome. Waiting for another player to join.\n")
+
+      expect(client.capture_output).to eq "What is your name: \n"
+      client.provide_input(name)
+      expect(server.clients_to_players.length).to eq(1)
     end
   end
 

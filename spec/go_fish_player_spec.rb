@@ -34,4 +34,7 @@ describe GoFishPlayer do
       expect(player.number_of_books).to eq books.length
     end
   end
+  context '#hand' do
+    it 'shows the players hand'
+  end
 end

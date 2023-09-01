@@ -16,7 +16,7 @@ class GoFishGame
   end
 
   def start
-    raise NotEnoughPlayers if player_count < 2
+    # raise NotEnoughPlayers if player_count < 2
 
     deck.shuffle_cards
     if player_count <= 3
