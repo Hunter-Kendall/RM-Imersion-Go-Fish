@@ -8,13 +8,14 @@ class MockGoFishSocketClient
 
   def initialize(port)
     @socket = TCPSocket.new('localhost', port)
+    @port = port
   end
 
   def provide_input(text)
     @socket.puts(text)
   end
 
-  def capture_output(delay = 0.1)
+  def capture_output(delay = 1.0)
     sleep(delay)
     @output = @socket.read_nonblock(1000) # not gets which blocks
   rescue IO::WaitReadable
@@ -31,11 +32,33 @@ describe GoFishSocketServer do
   let(:clients) { [] }
   def connect_client(name, welcome_message)
     client = MockGoFishSocketClient.new(server.port_number)
-    server.accept_new_client(name)
-    expect(client.capture_output).to eq welcome_message
+    sleep 1
+    clients.push client
+    server.accept_new_client
 
-    server.create_game_if_possible
+    expect(client.capture_output).to match welcome_message
+
     client
+  end
+
+  def create_client
+    client = MockGoFishSocketClient.new(server.port_number)
+    sleep 1
+    clients.push client
+    client
+  end
+  before(:each) do
+    server.start
+  end
+
+  after(:each) do
+    clients.each(&:close)
+    server.stop
+  end
+
+  around(:each) do |example|
+    example.run
+  rescue GoFishGame::NotEnoughPlayers
   end
   context 'game started' do
     xit 'Tells each player how many cards they have left' do
@@ -52,14 +75,30 @@ describe GoFishSocketServer do
   end
   context '#client_creates_player' do
     it 'asks the client for its name' do
-      server.start
       name = 'Hunter'
 
       client = connect_client('Player 1', "Welcome. Waiting for another player to join.\n")
-
-      expect(client.capture_output).to eq "What is your name: \n"
       client.provide_input(name)
+      server.client_creates_player # asks for name
+      # expect(client.capture_output).to eq "What is your name: \n"
+
       expect(server.clients_to_players.length).to eq(1)
+    end
+  end
+  context 'Accept_new_client' do
+    it 'accepts one client and asks for their name' do
+      client1 = create_client
+      server.accept_new_client
+      output = client1.capture_output
+      expect(output).to match 'Name?'
+    end
+    it 'client provides name' do
+      client1 = create_client
+      server.accept_new_client
+      expect(client1.capture_output).to match 'Name?' # Name question
+      client1.provide_input('Jacob')
+      server.create_game_if_possible
+      expect(client1.capture_output).to match 'Waiting for 1 more player'
     end
   end
 

@@ -15,10 +15,12 @@ class GoFishSocketServer
     @games ||= []
   end
 
-  def read_input
-    client.read_nonblock(1000)
-  rescue StandardError
-    nil
+  def read_input(client)
+    begin
+      input = client.read_nonblock(1000)
+    rescue IO::WaitReadable, Errno::EINTR
+    end
+    input
   end
 
   def start
@@ -29,6 +31,7 @@ class GoFishSocketServer
     client = @server.accept_nonblock
     pending_clients.push(client)
     client.puts(pending_clients.count % 3 == 0 ? 'Welcome. You are about to go fishing.' : 'Welcome. Waiting for another player to join.')
+    client.puts 'Name?'
     # associate player and client
   rescue IO::WaitReadable, Errno::EINTR
     puts 'No client to accept'
@@ -36,15 +39,19 @@ class GoFishSocketServer
 
   def client_creates_player
     pending_clients.each do |client|
-      next if clients_to_players.value?(client)
+      next if clients_to_players[client]
 
-      client.puts('What is your name: ')
-      name = read_input
+      # begin
+      #   name = client.read_nonblock(1000)
+      #   puts "create #{name}"
+      #   clients_to_players[client] = GoFishPlayer.new(name: name.chomp)
+      #   client.puts 'Waiting for 1 more player' if pending_clients.size.odd?
+      # rescue IO::WaitReadable, Errno::EINTR
+      # end
 
-      if name
-        clients_to_players[client] = name
-        puts 'added'
-      end
+      name = read_input(client)
+      puts "name #{name}"
+      clients_to_players[client] = name if name
     end
   end
 
@@ -60,10 +67,33 @@ class GoFishSocketServer
     inform_players_of_hand(game)
   end
 
-  def stop
-    return unless server
+  # def create_game_if_possible
+  #   # capture input of the name
+  #   pending_clients.each do |client|
+  #     next if clients_to_players[client]
 
-    server.close
+  #     begin
+  #       name = client.read_nonblock(1000)
+  #       puts "name #{name}"
+  #       clients_to_players[client] = GoFishPlayer.new(name: name.chomp)
+  #       client.puts 'Waiting for 1 more player' if pending_clients.size.odd?
+  #     rescue IO::WaitReadable, Errno::EINTR
+  #     end
+  #   end
+
+  #   return unless pending_clients.size.even?
+
+  #   # start a game if possible
+  #   pending_clients.each do |client|
+  #     client.puts 'Game is starting...'
+  #   end
+  #   GoFishGame.new(players: clients_to_players.values.last(2))
+  # end
+
+  def stop
+    return unless @server
+
+    @server.close
     @clients = []
   end
 

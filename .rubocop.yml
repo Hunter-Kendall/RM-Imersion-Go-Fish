@@ -7,6 +7,7 @@ AllCops:
     - node_modules/**/*
     - tmp/**/*
     - lib/fake_war_game.rb
+    - lib/example_go_fish_server.rb
   NewCops: enable
   
 # RSpec tests and rake tasks are expected to have
